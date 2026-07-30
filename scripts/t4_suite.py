@@ -13,17 +13,41 @@ import subprocess
 import sys
 
 REPO = "https://github.com/dihannahdi/racik.git"
-SRC = "/kaggle/input/intel-image-classification"
 WORK = "/kaggle/working/racik"
 
 subprocess.run(["git", "clone", "--depth", "1", REPO, WORK], check=True)
 os.chdir(WORK)
 
-# --- susun data/kaggle dari mount (cap 2000 train / 400 val per kelas) ------
+# --- temukan data: mount /kaggle/input, atau unduh sendiri (mount bisa flaky)
+ROOT = "/kaggle/input"
+if os.path.isdir(ROOT) and os.listdir(ROOT):
+    SRC = ROOT
+    print("isi /kaggle/input:", os.listdir(ROOT), flush=True)
+else:
+    import kagglehub
+    SRC = kagglehub.dataset_download("puneet6060/intel-image-classification")
+    print("mount kosong — unduh via kagglehub:", SRC, flush=True)
+
+
+def find_split(root, name):
+    """Cari folder split (seg_train/seg_test) di mana pun dia berada di mount,
+    kembalikan direktori yang langsung berisi subfolder kelas."""
+    for dirpath, dirnames, _files in os.walk(root):
+        if os.path.basename(dirpath) == name:
+            inner = os.path.join(dirpath, name)
+            cand = inner if os.path.isdir(inner) else dirpath
+            subs = [d for d in os.listdir(cand)
+                    if os.path.isdir(os.path.join(cand, d))]
+            if subs and not any(s.startswith("seg_") for s in subs):
+                return cand
+    raise FileNotFoundError(f"{name} tidak ditemukan di {root}")
+
+
 rng = random.Random(42)
-for split, srcdir, cap in [("train", "seg_train/seg_train", 2000),
-                           ("val", "seg_test/seg_test", 400)]:
-    base = os.path.join(SRC, srcdir)
+for split, srcname, cap in [("train", "seg_train", 2000),
+                            ("val", "seg_test", 400)]:
+    base = find_split(SRC, srcname)
+    print(f"{split} <- {base}", flush=True)
     for cls in sorted(os.listdir(base)):
         files = sorted(os.listdir(os.path.join(base, cls)))
         rng.shuffle(files)
