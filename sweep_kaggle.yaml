@@ -1,0 +1,27 @@
+# racik — sweep di data Kaggle nyata (folder-per-kelas di data/kaggle).
+# Disiapkan otomatis oleh agen data; struktur: data/kaggle/train|val/<kelas>/*.jpg
+
+backend: vision
+task: >
+  Klasifikasi gambar dataset Kaggle: temukan konfigurasi CNN dengan akurasi
+  validasi tertinggi pada budget training singkat (CPU-friendly).
+
+dataset:
+  name: folder
+  dir: ./data/kaggle
+  image_size: 32
+  limit_train: 1500
+  limit_val: 600
+
+epochs: 1
+seed: 42
+
+space:
+  arch:      {type: choice, options: [tiny, resnet18, mobilenet_v3_small]}
+  lr:        {type: loguniform, low: 0.0001, high: 0.01}
+  optimizer: {type: choice, options: [adam, sgd]}
+  augment:   {type: choice, options: [none, basic]}
+  depth:     {type: int, low: 2, high: 4, when: {arch: tiny}}
+  width:     {type: choice, options: [16, 32, 48], when: {arch: tiny}}
+  block:     {type: choice, options: [basic, residual, depthwise], when: {arch: tiny}}
+  use_se:    {type: choice, options: [true, false], when: {arch: tiny}}

@@ -1,0 +1,26 @@
+Benchmark ['random', 'evolution', 'tpe'] | backend=vision | budget=10 | seeds=2
+
+== random (seed 0) ==
+  selesai — terbaik: 0.4017
+
+== random (seed 1) ==
+  selesai — terbaik: 0.3683
+
+== evolution (seed 0) ==
+  selesai — terbaik: 0.4017
+
+== evolution (seed 1) ==
+  selesai — terbaik: 0.5167
+
+== tpe (seed 0) ==
+  selesai — terbaik: 0.3600
+
+== tpe (seed 1) ==
+  selesai — terbaik: 0.3683
+
+Benchmark tersimpan: BENCH.md dan bench.json
+
+Skor akhir rata-rata per algoritme:
+  evolution    0.4592
+  random       0.3850
+  tpe          0.3641

@@ -1,0 +1,7 @@
+# Inti harness (backend dummy jalan hanya dengan ini)
+pyyaml
+
+# Backend vision (training CNN). Di Windows tanpa GPU NVIDIA:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision

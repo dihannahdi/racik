@@ -1,0 +1,12 @@
+# data & cache eksperimen — tidak ikut repo
+data/
+.racik_cache/
+__pycache__/
+*.pyc
+.venv/
+
+# keluaran run lokal (hasil resmi diarsip manual, mis. results_server/)
+REPORT.md
+results.json
+BENCH.md
+bench.json

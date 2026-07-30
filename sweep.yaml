@@ -1,0 +1,30 @@
+# racik — sweep VISION: cari kombinasi arsitektur CNN + hyperparameter terbaik.
+# Sengaja kecil (subset data, 1 epoch) supaya satu trial selesai dalam hitungan
+# menit di CPU. Setelah konfigurasi juara ketemu, naikkan epochs/limit.
+
+backend: vision
+task: >
+  Klasifikasi CIFAR-10: temukan konfigurasi CNN dengan akurasi validasi
+  tertinggi pada budget training singkat.
+
+dataset:
+  name: cifar10        # atau "folder" + dir berisi train/ dan val/ per kelas
+  dir: ./data
+  image_size: 32
+  limit_train: 2000    # subset agar loop cepat; isi null untuk pakai semua
+  limit_val: 1000
+
+epochs: 1
+seed: 42
+
+# Ruang pencarian — inilah "mix & match"-nya
+space:
+  arch:      {type: choice, options: [tiny, resnet18, mobilenet_v3_small]}
+  lr:        {type: loguniform, low: 0.0001, high: 0.01}
+  optimizer: {type: choice, options: [adam, sgd]}
+  augment:   {type: choice, options: [none, basic]}
+  # parameter arsitektur "tiny" — bersyarat: hanya hidup jika arch = tiny
+  depth:     {type: int, low: 2, high: 4, when: {arch: tiny}}
+  width:     {type: choice, options: [16, 32, 48], when: {arch: tiny}}
+  block:     {type: choice, options: [basic, residual, depthwise], when: {arch: tiny}}
+  use_se:    {type: choice, options: [true, false], when: {arch: tiny}}
