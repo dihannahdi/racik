@@ -12,7 +12,7 @@ from racik.config import config_label, load_sweep
 from racik.halving import run_halving
 from racik.report import write_bench, write_report
 from racik.runner import run_search
-from racik.searchers import SEARCHERS, make_searcher
+from racik.searchers import all_searchers, make_searcher
 from racik.space import Space
 
 
@@ -140,7 +140,7 @@ def main():
 
     s = sub.add_parser("search", help="jalankan satu algoritme pencari")
     s.add_argument("sweep", nargs="?", default="sweep.yaml")
-    s.add_argument("--searcher", default="tpe", choices=sorted(SEARCHERS))
+    s.add_argument("--searcher", default="tpe", choices=sorted(all_searchers()))
     s.add_argument("--budget", type=int, default=20)
     s.add_argument("--seed", type=int, default=0)
     s.add_argument("--no-cache", action="store_true")
@@ -149,7 +149,7 @@ def main():
 
     h = sub.add_parser("halving", help="successive halving: budget bertingkat")
     h.add_argument("sweep", nargs="?", default="sweep.yaml")
-    h.add_argument("--searcher", default="random", choices=sorted(SEARCHERS))
+    h.add_argument("--searcher", default="random", choices=sorted(all_searchers()))
     h.add_argument("--n0", type=int, default=9, help="jumlah kandidat awal")
     h.add_argument("--eta", type=int, default=3, help="faktor pemangkasan")
     h.add_argument("--r0", type=int, default=1, help="epoch rung pertama")

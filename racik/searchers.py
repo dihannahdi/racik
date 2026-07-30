@@ -166,7 +166,20 @@ SEARCHERS = {
 }
 
 
+def all_searchers():
+    """Semua pencari: milik racik + baseline eksternal (kalau optuna terpasang)."""
+    out = dict(SEARCHERS)
+    try:
+        from .baselines import OPTUNA_SEARCHERS
+        out.update(OPTUNA_SEARCHERS)
+    except ImportError:
+        pass  # optuna opsional
+    return out
+
+
 def make_searcher(name, space, seed=0):
-    if name not in SEARCHERS:
-        raise ValueError(f"searcher tidak dikenal: {name} (pilihan: {list(SEARCHERS)})")
-    return SEARCHERS[name](space, seed=seed)
+    registry = all_searchers()
+    if name not in registry:
+        raise ValueError(f"searcher tidak dikenal: {name} "
+                         f"(pilihan: {sorted(registry)})")
+    return registry[name](space, seed=seed)

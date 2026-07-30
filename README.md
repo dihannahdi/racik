@@ -176,6 +176,52 @@ Ini *negative result* dengan protokol reproducible — kandidat tesis paper:
 workshop (1 dataset, n=14 per validasi, model kecil); untuk klaim penuh
 perlu: beberapa dataset, lebih banyak seed, korelasi vs akurasi konvergen.
 
+## Adu langsung vs Optuna — dan temuan terpenting proyek ini (v0.5)
+
+Pertanyaan yang wajar: *apakah implementasi kita lebih baik dari yang sudah ada?*
+`racik/baselines.py` membungkus sampler Optuna 4.9 ke antarmuka ask/tell yang
+sama, jadi TPE/evolution kita diadu pada ruang, budget, dan seed identik.
+
+**Kalibrasi lantai noise.** `random` dan `optuna_random` adalah algoritme yang
+*persis sama* (sampling seragam) — mereka harus seri. Selisih terukurnya
+adalah lantai noise protokol: **0.025**. Selisih apa pun di bawah itu tidak
+boleh diklaim sebagai kemenangan. Kalibrasi ini hampir tak pernah dilakukan
+di literatur NAS/HPO, padahal murah.
+
+**Peringkat berbalik saat seed ditambah** (dummy, budget 30, uji sign-flip):
+
+| Pencari | 15 seed | 40 seed |
+|---|---|---|
+| optuna_tpe | 0.7506 (ke-3) | **0.7637 (ke-1)** |
+| optuna_cmaes | 0.7508 (ke-2) | 0.7494 (ke-2) |
+| **evolution (kita)** | **0.7689 (ke-1)** | 0.7385 (ke-3) |
+| optuna_random | 0.7401 | 0.7336 |
+| random (kita) | 0.7144 | 0.7082 |
+| **tpe (kita)** | 0.7375 | 0.7077 (terakhir) |
+
+Pada 15 seed kita "menang". Pada 40 seed **TPE Optuna signifikan lebih baik
+dari TPE kita** (Δ=0.056, p=0.029), dan evolution kita turun ke posisi tiga
+tanpa selisih signifikan terhadap siapa pun. Jawaban jujurnya: **tidak,
+framework kita belum lebih baik** — dan papan peringkat 15-seed itu noise.
+
+**Ini temuan sentral proyek, dan ia konsisten dengan temuan proxy kita:**
+di rezim ini *jumlah seed menentukan siapa juaranya*. Fenomena sign-flip yang
+kita temukan pada validasi zero-cost proxy (kontaminasi hyperparameter,
+lalu fidelity) muncul lagi pada **peringkat algoritme**. Dengan 15 seed —
+lebih banyak dari yang lazim dipakai orang — kita hampir menerbitkan klaim
+yang salah arah. Kalibrasi lantai noise adalah penangkalnya.
+
+Kandidat tesis paper: *"Rank instability in NAS/HPO benchmarks: a noise-floor
+calibration protocol"* — dengan dua studi kasus dari repo ini (proxy dan
+peringkat searcher). Reproduksi: `py run.py bench ... --seeds 40` lalu
+`py scripts/paired_test.py bench.json`.
+
+**Yang bisa diperbaiki dari TPE kita** (defisit signifikan, jadi ini nyata,
+bukan noise): Optuna memakai `n_startup_trials=10` dan gamma adaptif
+`min(ceil(0.1n), 25)` untuk memisah good/bad, bandwidth ala Scott's rule,
+serta bobot observasi yang meluruh menurut usia. Milik kita: warmup 5,
+gamma tetap 0.25, bandwidth `range/sqrt(n)`, tanpa pembobotan usia.
+
 ## Fitur v0.3
 
 - **Ruang bersyarat** (`when:` di sweep.yaml) — parameter mati dibuang dari
