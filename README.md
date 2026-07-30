@@ -216,11 +216,43 @@ calibration protocol"* — dengan dua studi kasus dari repo ini (proxy dan
 peringkat searcher). Reproduksi: `py run.py bench ... --seeds 40` lalu
 `py scripts/paired_test.py bench.json`.
 
-**Yang bisa diperbaiki dari TPE kita** (defisit signifikan, jadi ini nyata,
-bukan noise): Optuna memakai `n_startup_trials=10` dan gamma adaptif
-`min(ceil(0.1n), 25)` untuk memisah good/bad, bandwidth ala Scott's rule,
-serta bobot observasi yang meluruh menurut usia. Milik kita: warmup 5,
-gamma tetap 0.25, bandwidth `range/sqrt(n)`, tanpa pembobotan usia.
+## Menutup celah: TPE v2 (`racik/tpe2.py`)
+
+Defisit v1 signifikan (bukan noise), jadi bisa diperbaiki dan diverifikasi.
+Bedah sumber Optuna menunjukkan penyebabnya **algoritmik, bukan tuning** —
+empat hal dari Bergstra dkk. (2011) yang hilang di v1:
+
+| Aspek | v1 | v2 (formulasi asli) |
+|---|---|---|
+| Bandwidth kernel | satu global `rentang/√n` | **adaptif per titik**: `max(jarak tetangga kiri, kanan)` |
+| Batas bawah sigma | tidak ada | magic clip `rentang/min(100, n+2)` |
+| Prior | campuran seragam ad hoc | kernel Gaussian eksplisit di tengah domain |
+| Pembagi good/bad | gamma tetap 0.25 | `min(⌈0.1n⌉, 25)` + bobot meluruh menurut usia |
+
+Bandwidth adaptif adalah yang paling berpengaruh: daerah padat observasi
+mendapat kernel tajam (eksploitasi presisi), daerah renggang mendapat kernel
+lebar (tetap menjelajah). Satu bandwidth global memaksa kompromi buruk di
+kedua rezim. Kernelnya normal **terpancung** pada domain, jadi massa
+probabilitas tidak bocor keluar batas.
+
+**Hasil (dummy, budget 30, 40 seed, protokol identik):**
+
+| Pencari | Skor | vs tpe2 |
+|---|---|---|
+| **tpe2 (kita)** | **0.7844** | — |
+| optuna_tpe | 0.7637 | −0.021, p=0.389 (di bawah lantai noise → **seri**) |
+| optuna_cmaes | 0.7494 | −0.035, p=0.026 (signifikan) |
+| evolution (kita) | 0.7385 | −0.046, p=0.010 (signifikan) |
+| optuna_random | 0.7336 | −0.051, p=0.011 (signifikan) |
+| random | 0.7082 | −0.076, p=0.000 (signifikan) |
+| tpe v1 (kita) | 0.7077 | **−0.077, p=0.000 (signifikan)** |
+
+Bacaan yang jujur: **v2 mengalahkan v1 dengan sangat tegas** (Δ=0.077, tiga
+kali lantai noise, p=0.000) — perbaikannya nyata, bukan keberuntungan. Terhadap
+TPE Optuna, v2 **nominal di depan tapi statistik seri** (Δ=0.021 di bawah
+lantai noise 0.025): celah yang tadinya signifikan tertinggal kini tertutup.
+Klaim yang boleh ditulis: *implementasi kami setara rujukan industri* — bukan
+"mengalahkan". Terhadap CMA-ES dan evolution kita sendiri, v2 signifikan unggul.
 
 ## Fitur v0.3
 

@@ -169,6 +169,8 @@ SEARCHERS = {
 def all_searchers():
     """Semua pencari: milik racik + baseline eksternal (kalau optuna terpasang)."""
     out = dict(SEARCHERS)
+    from .tpe2 import TPE2Searcher
+    out[TPE2Searcher.name] = TPE2Searcher
     try:
         from .baselines import OPTUNA_SEARCHERS
         out.update(OPTUNA_SEARCHERS)
