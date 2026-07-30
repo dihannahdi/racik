@@ -1,0 +1,305 @@
+{
+ "fixed_hparams": {
+  "lr": 0.003,
+  "optimizer": "adam",
+  "augment": "basic"
+ },
+ "rows": [
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 3,
+    "width": 16,
+    "block": "residual",
+    "use_se": true
+   },
+   "score": 0.3617,
+   "metrics": {
+    "val_accuracy": 0.3617,
+    "params_juta": 0.08,
+    "durasi_detik": 10.0,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 2,
+    "width": 48,
+    "block": "basic",
+    "use_se": false
+   },
+   "score": 0.44,
+   "metrics": {
+    "val_accuracy": 0.44,
+    "params_juta": 0.06,
+    "durasi_detik": 9.7,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 4,
+    "width": 16,
+    "block": "depthwise",
+    "use_se": true
+   },
+   "score": 0.17,
+   "metrics": {
+    "val_accuracy": 0.17,
+    "params_juta": 0.02,
+    "durasi_detik": 7.6,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 2,
+    "width": 16,
+    "block": "residual",
+    "use_se": false
+   },
+   "score": 0.3433,
+   "metrics": {
+    "val_accuracy": 0.3433,
+    "params_juta": 0.02,
+    "durasi_detik": 7.4,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 2,
+    "width": 16,
+    "block": "basic",
+    "use_se": false
+   },
+   "score": 0.3833,
+   "metrics": {
+    "val_accuracy": 0.3833,
+    "params_juta": 0.01,
+    "durasi_detik": 5.9,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 2,
+    "width": 48,
+    "block": "basic",
+    "use_se": true
+   },
+   "score": 0.375,
+   "metrics": {
+    "val_accuracy": 0.375,
+    "params_juta": 0.07,
+    "durasi_detik": 10.4,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 4,
+    "width": 48,
+    "block": "depthwise",
+    "use_se": true
+   },
+   "score": 0.17,
+   "metrics": {
+    "val_accuracy": 0.17,
+    "params_juta": 0.11,
+    "durasi_detik": 11.2,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 4,
+    "width": 48,
+    "block": "residual",
+    "use_se": true
+   },
+   "score": 0.31,
+   "metrics": {
+    "val_accuracy": 0.31,
+    "params_juta": 1.8,
+    "durasi_detik": 23.3,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 2,
+    "width": 16,
+    "block": "depthwise",
+    "use_se": true
+   },
+   "score": 0.1733,
+   "metrics": {
+    "val_accuracy": 0.1733,
+    "params_juta": 0.0,
+    "durasi_detik": 6.4,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 3,
+    "width": 32,
+    "block": "basic",
+    "use_se": true
+   },
+   "score": 0.38,
+   "metrics": {
+    "val_accuracy": 0.38,
+    "params_juta": 0.11,
+    "durasi_detik": 9.2,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 4,
+    "width": 32,
+    "block": "depthwise",
+    "use_se": true
+   },
+   "score": 0.175,
+   "metrics": {
+    "val_accuracy": 0.175,
+    "params_juta": 0.07,
+    "durasi_detik": 9.2,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "tiny",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic",
+    "depth": 2,
+    "width": 48,
+    "block": "depthwise",
+    "use_se": true
+   },
+   "score": 0.3083,
+   "metrics": {
+    "val_accuracy": 0.3083,
+    "params_juta": 0.01,
+    "durasi_detik": 8.6,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "resnet18",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic"
+   },
+   "score": 0.3533,
+   "metrics": {
+    "val_accuracy": 0.3533,
+    "params_juta": 11.18,
+    "durasi_detik": 20.6,
+    "device": "cpu"
+   }
+  },
+  {
+   "config": {
+    "arch": "mobilenet_v3_small",
+    "lr": 0.003,
+    "optimizer": "adam",
+    "augment": "basic"
+   },
+   "score": 0.155,
+   "metrics": {
+    "val_accuracy": 0.155,
+    "params_juta": 1.52,
+    "durasi_detik": 17.8,
+    "device": "cpu"
+   }
+  }
+ ],
+ "naswot": {
+  "scores": [
+   -155.3483428955078,
+   -134.7516632080078,
+   -220.26329040527344,
+   -141.23606872558594,
+   -144.14369201660156,
+   -135.4044647216797,
+   -192.81771850585938,
+   -151.72288513183594,
+   -211.48338317871094,
+   -156.28170776367188,
+   -218.46035766601562,
+   -184.8477783203125,
+   -146.2093963623047,
+   -116.60650634765625
+  ],
+  "spearman": 0.44884515609416686
+ },
+ "synflow": {
+  "scores": [
+   18.982263992377455,
+   10.972802927545516,
+   13.03822941686392,
+   13.723559612313661,
+   9.302906856027453,
+   11.018879510789153,
+   15.443415952283338,
+   29.174969816685206,
+   8.463896430414065,
+   13.520719351481867,
+   14.648128019133651,
+   10.105503642430845,
+   56.455732108765446,
+   34.44076994670569
+  ],
+  "spearman": -0.2750276691753473
+ }
+}

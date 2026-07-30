@@ -111,6 +111,35 @@ Keluaran: `REPORT.md` + `results.json` (per pencarian), `BENCH.md` + `bench.json
 
 Optuna, Ray Tune, dan W&B Sweeps jauh lebih matang untuk produksi (ratusan trial, terdistribusi, pruning). racik sengaja kecil: seluruh algoritmenya ditulis sendiri dan bisa dibaca habis, karena tujuannya **riset dan pemahaman**, bukan menggantikan mereka. Kalau butuh skala, hasil di sini tetap valid sebagai prototipe sebelum pindah ke Optuna.
 
+## Zero-cost proxies: menilai arsitektur tanpa training (v0.4)
+
+Pain point terbesar yang tersisa: mengetahui sebuah arsitektur jelek saja
+harus membayar 1 epoch training. `racik/proxies.py` mengimplementasikan dua
+proxy tanpa-training dari nol — **NASWOT** (logdet pola aktivasi ReLU;
+Mellor dkk., ICML 2021) dan **synflow** (Tanaka dkk., NeurIPS 2020) — lalu
+memakainya sebagai **rung -1 gratis** di successive halving
+(`py run.py halving ... --pool 60 --proxy naswot`).
+
+**Disiplin validasinya adalah temuannya.** Proxy tidak dipercaya buta;
+diadili dulu terhadap akurasi hasil training sendiri (`py run.py proxycheck`),
+dan hasilnya mengejutkan:
+
+| Proxy | Validasi tercemar (n=9, hyperparam bervariasi) | Validasi terkontrol (n=14, hyperparam dikunci) |
+|---|---|---|
+| NASWOT | −0.786 | **+0.449** |
+| synflow | +0.449 | **−0.275** |
+
+Kedua proxy **berbalik tanda** saat eksperimen dibersihkan (proxy hanya
+melihat arsitektur — membandingkannya pada sampel yang hyperparameternya
+ikut berubah itu tidak sah). Validasi yang tercemar bukan sekadar kurang
+akurat: dia menunjuk proxy yang salah. Kualitas gerbang NASWOT terukur:
+top-7 dari 14 arsitektur memuat juara sejati (acc 0.44) dengan rata-rata
+kandidat 0.337 vs 0.248 di bottom-7 — kenaikan kualitas kandidat gratis.
+
+Catatan fidelity: rho +0.45 diukur terhadap akurasi-1-epoch (didominasi
+kecepatan belajar). Literatur melaporkan korelasi lebih tinggi terhadap
+akurasi final — diuji di `scripts/t4_suite.py` (GPU T4 Kaggle, 3+ epoch).
+
 ## Fitur v0.3
 
 - **Ruang bersyarat** (`when:` di sweep.yaml) — parameter mati dibuang dari

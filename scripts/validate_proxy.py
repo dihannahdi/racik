@@ -10,6 +10,10 @@ dan cuma memuat 3 arsitektur berbeda. Di sini hyperparameter DIKUNCI
 
 import json
 import random
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from racik.config import config_label, load_sweep
 from racik.proxies import ProxyScorer, spearman
@@ -19,7 +23,8 @@ from racik.vision_backend import VisionBackend
 
 FIXED = {"lr": 0.003, "optimizer": "adam", "augment": "basic"}
 
-cfg = load_sweep("sweep_kaggle.yaml")
+SWEEP = sys.argv[1] if len(sys.argv) > 1 else "sweep_kaggle.yaml"
+cfg = load_sweep(SWEEP)
 arch_space = Space({
     "depth": {"type": "int", "low": 2, "high": 4},
     "width": {"type": "choice", "options": [16, 32, 48]},
