@@ -53,13 +53,59 @@ def cmd_halving(args):
     backend = make_backend(cfg)
     searcher = make_searcher(args.searcher, space, seed=args.seed)
     print(f"Successive halving: n0={args.n0}, eta={args.eta}, "
-          f"r0={args.r0}, rmax={args.rmax}")
+          f"r0={args.r0}, rmax={args.rmax}"
+          + (f", prefilter proxy={args.proxy} pool={args.pool}" if args.pool else ""))
+
+    initial = None
+    if args.pool:
+        from racik.halving import prefilter
+        initial = prefilter(cfg, searcher, pool=args.pool, keep=args.n0,
+                            proxy=args.proxy)
+
     history, best, spent = run_halving(cfg, searcher, backend,
                                        n0=args.n0, eta=args.eta,
                                        r0=args.r0, rmax=args.rmax,
-                                       use_cache=not args.no_cache)
+                                       use_cache=not args.no_cache,
+                                       initial_configs=initial)
     write_report(history, cfg, f"halving({args.searcher})")
     print(f"\nTerbaik: [{best['score']:.4f}] {config_label(best['config'])}")
+
+
+def cmd_proxycheck(args):
+    """Validasi zero-cost proxy terhadap akurasi hasil training kita sendiri
+    (baris cache yang punya metrics = hasil backend vision sungguhan)."""
+    import json
+    from pathlib import Path
+
+    from racik.proxies import ProxyScorer, spearman
+
+    cfg = load_sweep(args.sweep)
+    rows, seen = [], set()
+    for f in Path(".racik_cache").glob("*.json"):
+        row = json.loads(f.read_text(encoding="utf-8"))
+        if "metrics" not in row or row.get("fidelity") not in (None, 1):
+            continue  # hanya hasil training nyata pada fidelity setara
+        key = json.dumps(row["config"], sort_keys=True, default=str)
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append(row)
+    if len(rows) < 5:
+        print(f"Baru {len(rows)} hasil training di cache — terlalu sedikit "
+              "untuk korelasi yang berarti. Jalankan search/halving dulu.")
+        return
+
+    print(f"{len(rows)} konfigurasi terlatih ditemukan di cache. "
+          "Menghitung skor proxy...")
+    accs = [r["score"] for r in rows]
+    for proxy in ("naswot", "synflow"):
+        scorer = ProxyScorer(cfg, proxy=proxy)
+        scores = [scorer.score(r["config"]) for r in rows]
+        rho = spearman(scores, accs)
+        print(f"\n== {proxy}: Spearman rho vs akurasi = {rho:+.3f} ==")
+        ranked = sorted(zip(scores, accs, rows), key=lambda t: t[0], reverse=True)
+        for s, a, r in ranked:
+            print(f"  proxy={s:>9.3f}  acc={a:.4f}  {config_label(r['config'])}")
 
 
 def cmd_bench(args):
@@ -110,7 +156,16 @@ def main():
     h.add_argument("--rmax", type=int, default=None, help="epoch maksimum")
     h.add_argument("--seed", type=int, default=0)
     h.add_argument("--no-cache", action="store_true")
+    h.add_argument("--pool", type=int, default=None,
+                   help="prefilter: nilai POOL kandidat dengan zero-cost proxy "
+                        "(tanpa training), loloskan n0 terbaik")
+    h.add_argument("--proxy", default="naswot", choices=["naswot", "synflow"])
     h.set_defaults(fn=cmd_halving)
+
+    p = sub.add_parser("proxycheck",
+                       help="validasi zero-cost proxy vs akurasi cache kita")
+    p.add_argument("sweep", nargs="?", default="sweep_kaggle.yaml")
+    p.set_defaults(fn=cmd_proxycheck)
 
     b = sub.add_parser("bench", help="bandingkan beberapa algoritme, budget sama")
     b.add_argument("sweep", nargs="?", default="sweep_dummy.yaml")

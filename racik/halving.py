@@ -17,9 +17,31 @@ from .config import config_label
 from .runner import evaluate
 
 
+def prefilter(cfg, searcher, pool, keep, proxy="naswot", verbose=True):
+    """Rung -1, gratis: saring `pool` kandidat dengan zero-cost proxy (tanpa
+    training), loloskan `keep` terbaik ke halving. Biaya: detik CPU per kandidat."""
+    import time
+
+    from .proxies import ProxyScorer
+
+    scorer = ProxyScorer(cfg, proxy=proxy)
+    t0 = time.time()
+    scored = []
+    for _ in range(pool):
+        c = searcher.ask()
+        scored.append((scorer.score(c), c))
+    scored.sort(key=lambda sc: sc[0], reverse=True)
+    if verbose:
+        print(f"-- rung -1 (gratis): {pool} kandidat dinilai proxy `{proxy}` "
+              f"dalam {time.time() - t0:.1f}s, lolos {keep} --")
+        for s, c in scored[:keep]:
+            print(f"  {proxy}={s:.3f}  {config_label(c)}")
+    return [c for _s, c in scored[:keep]]
+
+
 def run_halving(cfg, searcher, backend, n0=9, eta=3, r0=1, rmax=None,
-                use_cache=True, verbose=True):
-    configs = [searcher.ask() for _ in range(n0)]
+                use_cache=True, verbose=True, initial_configs=None):
+    configs = initial_configs or [searcher.ask() for _ in range(n0)]
     r = r0
     rung = 0
     history = []
