@@ -5,8 +5,8 @@ __pycache__/
 *.pyc
 .venv/
 
-# keluaran run lokal (hasil resmi diarsip manual, mis. results_server/)
-REPORT.md
-results.json
-BENCH.md
-bench.json
+# keluaran run lokal di akar (hasil resmi diarsip di results_server/)
+/REPORT.md
+/results.json
+/BENCH.md
+/bench.json
