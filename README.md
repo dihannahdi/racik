@@ -211,9 +211,25 @@ lalu fidelity) muncul lagi pada **peringkat algoritme**. Dengan 15 seed —
 lebih banyak dari yang lazim dipakai orang — kita hampir menerbitkan klaim
 yang salah arah. Kalibrasi lantai noise adalah penangkalnya.
 
+**Lantai daya uji (power floor) — konsekuensi yang bisa dihitung, bukan opini.**
+Uji sign-flip 2-sisi atas n pasang hanya punya 2^n susunan tanda, jadi p
+terkecil yang *mungkin* dicapai adalah 2/2^n — berapa pun besar efeknya:
+
+| n seed | 3 | 4 | 5 | **6** | 10 | 20 |
+|---|---|---|---|---|---|---|
+| p minimum | 0.250 | 0.125 | 0.063 | **0.031** | 0.002 | ~1e-6 |
+
+Artinya **dengan kurang dari 6 seed, p<0.05 mustahil dicapai** — sementara
+3–5 seed adalah praktik lazim di makalah NAS/HPO. Validasi kita sendiri di
+data nyata dengan 3 seed membuktikannya: keenam perbandingan mentok di
+p=0.25–0.75, tak satu pun bisa signifikan. `scripts/paired_test.py` kini
+mencetak peringatan otomatis bila n terlalu kecil.
+
 Kandidat tesis paper: *"Rank instability in NAS/HPO benchmarks: a noise-floor
-calibration protocol"* — dengan dua studi kasus dari repo ini (proxy dan
-peringkat searcher). Reproduksi: `py run.py bench ... --seeds 40` lalu
+calibration protocol"* — tiga pilar, semuanya terukur di repo ini:
+(1) lantai noise dari dua implementasi algoritme identik, (2) lantai daya uji
+2/2^n, (3) dua studi kasus sign-flip (validasi proxy dan peringkat searcher).
+Reproduksi: `py run.py bench ... --seeds 40` lalu
 `py scripts/paired_test.py bench.json`.
 
 ## Menutup celah: TPE v2 (`racik/tpe2.py`)

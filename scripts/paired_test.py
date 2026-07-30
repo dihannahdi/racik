@@ -39,7 +39,18 @@ def sign_flip_p(diffs):
     return hits / total
 
 
-print(f"n_seed = {n_seed}\n")
+"""Lantai daya uji (power floor): uji sign-flip 2-sisi atas n pasang hanya
+punya 2^n susunan tanda, dan p terkecil yang MUNGKIN dicapai adalah 2/2^n —
+berapa pun besarnya efek. Jadi n < 6 tidak bisa mencapai p<0.05 sama sekali:
+  n=3 -> p_min 0.250   n=4 -> 0.125   n=5 -> 0.0625   n=6 -> 0.031
+Padahal 3-5 seed adalah praktik lazim di makalah NAS/HPO."""
+p_min = 2.0 / (2 ** n_seed)
+print(f"n_seed = {n_seed}   (p terkecil yang mungkin = {p_min:.4f})")
+if p_min > 0.05:
+    print(f"  PERINGATAN: dengan {n_seed} seed, p<0.05 MUSTAHIL dicapai "
+          f"seberapa pun besar efeknya. Butuh minimal 6 seed untuk uji ini "
+          f"sekadar MAMPU signifikan; 20+ untuk daya uji yang layak.")
+print()
 print("Skor akhir rata-rata:")
 for n in sorted(names, key=lambda k: -sum(finals[k]) / n_seed):
     m = sum(finals[n]) / n_seed
