@@ -137,8 +137,44 @@ top-7 dari 14 arsitektur memuat juara sejati (acc 0.44) dengan rata-rata
 kandidat 0.337 vs 0.248 di bottom-7 — kenaikan kualitas kandidat gratis.
 
 Catatan fidelity: rho +0.45 diukur terhadap akurasi-1-epoch (didominasi
-kecepatan belajar). Literatur melaporkan korelasi lebih tinggi terhadap
-akurasi final — diuji di `scripts/t4_suite.py` (GPU T4 Kaggle, 3+ epoch).
+kecepatan belajar). Diuji ulang di GPU — lihat verdict di bawah.
+
+## Verdict GPU T4 (Kaggle, data 5x lebih besar, 3-9 epoch)
+
+Suite `scripts/t4_suite.py` (2x Tesla T4, ~19 menit, ~80 evaluasi;
+arsip di `results_server/t4/`):
+
+**Benchmark algoritme** (12 trial x 2 seed @3 epoch):
+
+| Algoritme | Rata-rata skor terbaik |
+|---|---|
+| **tpe** | **0.7171 ± 0.061** |
+| evolution | 0.7100 ± 0.077 |
+| random | 0.6275 ± 0.026 |
+
+TPE terbayar begitu budget melewati warmup-nya (5 trial acak) — konsisten
+dengan teorinya. Kedua algoritme model-based kini jelas di atas random.
+
+**Temuan utama — gerbang proxy GAGAL, dan kegagalannya informatif:**
+
+| Eksperimen | Hasil |
+|---|---|
+| Halving polos (seed 11, 27 epoch-unit) | terbaik **0.6450** |
+| Halving + gerbang NASWOT (pool 60, seed & budget sama) | terbaik **0.5533** |
+| Validasi ulang NASWOT @3 epoch | rho **−0.525** (lokal @1 epoch: +0.449) |
+
+Gerbang NASWOT meloloskan **9/9 mobilenet** dari 60 kandidat — keluarga yang
+paling lambat belajar di rezim epoch rendah (semua 0.18 di rung pertama).
+Kesimpulan yang bisa dipertahankan: **korelasi zero-cost proxy tidak stabil**
+— berbalik tanda karena (a) kontaminasi hyperparameter, (b) perubahan
+fidelity/ukuran data — dan biasnya sistematik per keluarga arsitektur.
+Di ruang pencarian campuran (torchvision + custom) pada fidelity praktis
+(1–9 epoch), gerbang proxy lebih buruk daripada tanpa gerbang.
+
+Ini *negative result* dengan protokol reproducible — kandidat tesis paper:
+*"kapan dan mengapa zero-cost proxies menyesatkan"*. Bukti masih level
+workshop (1 dataset, n=14 per validasi, model kecil); untuk klaim penuh
+perlu: beberapa dataset, lebih banyak seed, korelasi vs akurasi konvergen.
 
 ## Fitur v0.3
 
