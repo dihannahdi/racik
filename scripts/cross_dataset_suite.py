@@ -25,9 +25,14 @@ subprocess.run([sys.executable, "-m", "pip", "install", "-q", "optuna", "cmaes"]
 env = dict(os.environ, PYTHONUNBUFFERED="1", PYTHONUTF8="1")
 SEARCHERS = "random,optuna_random,tpe,tpe2,optuna_tpe,evolution"
 
-for budget in (12, 40):
+# Fidelity CIFAR sudah dikalibrasi (5 epoch / 5000 sampel -> akurasi acuan
+# 0.3775, sebanding dengan Intel 0.36), jadi satu training di sini kira-kira
+# 11x lebih berat daripada protokol Intel. Karena itu hanya budget 12 yang
+# dijalankan; budget 40 di CIFAR menjadi pekerjaan lanjutan.
+for budget in (12,):
     print("\n" + "=" * 60, flush=True)
-    print(f"== CIFAR-10 | budget {budget} | 20 seed", flush=True)
+    print(f"== CIFAR-10 (fidelity terkalibrasi) | budget {budget} | 20 seed",
+          flush=True)
     print("=" * 60, flush=True)
     subprocess.run([sys.executable, "run.py", "bench", "sweep_cifar.yaml",
                     "--searchers", SEARCHERS,

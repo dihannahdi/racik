@@ -9,14 +9,21 @@ task: >
   Klasifikasi CIFAR-10: replikasi protokol benchmark pencari pada dataset
   kedua, untuk menguji apakah temuan lintas-tugas.
 
+# Fidelity DIKALIBRASI, bukan disamakan buta dengan protokol Intel.
+# Bukti (scripts/calibrate_fidelity.py, akurasi acuan 3 konfigurasi acak):
+#   1 epoch / 1500 -> 0.1356  (lantai; tebakan acak 10 kelas = 0.10)
+#   3 epoch / 3000 -> 0.2790
+#   5 epoch / 5000 -> 0.3775  <- sebanding dengan Intel Image (~0.36)
+# Menyamakan jumlah epoch antar dataset dengan kesulitan berbeda bukan
+# perbandingan yang adil; yang disamakan harus rezim akurasinya.
 dataset:
   name: cifar10
   dir: ./data
   image_size: 32
-  limit_train: 1500
-  limit_val: 600
+  limit_train: 5000
+  limit_val: 2000
 
-epochs: 1
+epochs: 5
 seed: 42
 
 space:
