@@ -270,6 +270,52 @@ lantai noise 0.025): celah yang tadinya signifikan tertinggal kini tertutup.
 Klaim yang boleh ditulis: *implementasi kami setara rujukan industri* — bukan
 "mengalahkan". Terhadap CMA-ES dan evolution kita sendiri, v2 signifikan unggul.
 
+## Temuan terkuat: di data nyata, tak ada pencari yang mengalahkan random —
+## dan penyebabnya bisa dihitung (v0.7)
+
+Benchmark data nyata dengan **daya uji memadai** (Intel Image, 6 pencari,
+budget 12, **20 seed**, GPU T4; `p` minimum yang mungkin = 0.00002, jadi
+signifikansi benar-benar terjangkau):
+
+| Pencari | Skor |
+|---|---|
+| evolution | 0.3757 |
+| optuna_random | 0.3703 |
+| optuna_tpe | 0.3688 |
+| tpe2 | 0.3650 |
+| random | 0.3612 |
+| tpe v1 | 0.3558 |
+
+Lantai noise (random vs optuna_random): **0.0092**.
+**Dari 15 perbandingan berpasangan, NOL yang signifikan.** Bahkan
+evolution vs random hanya p=0.186. Seluruh rentang papan peringkat (0.020)
+hanya dua kali lantai noise.
+
+Bandingkan dengan objektif sintetis (budget 30, 40 seed) di mana tpe2 dan
+evolution menang dengan p≤0.01. **Permukaan sintetis melebih-lebihkan
+perbedaan antar-algoritme; tugas nyata meratakannya.** Itu temuan tentang
+validitas benchmark, bukan tentang algoritmenya.
+
+**Diagnosis "budget efektif" — terukur, bukan spekulasi.** Kami hitung
+berapa banyak seed yang kurvanya masih identik dengan random di tiap trial:
+
+| Pencari (warmup) | t=5 | t=10 | t=12 |
+|---|---|---|---|
+| tpe2 (10) | 20/20 identik | 20/20 identik | 12/20 identik |
+| tpe v1 (5) | 20/20 | 7/20 | 4/20 |
+| evolution (populasi 8) | 20/20 | 8/20 | 6/20 |
+
+Pada budget 12, **tpe2 hanya membuat 2 keputusan berbasis model** — sisanya
+warmup acak. Jadi benchmark itu sebagian besar mengukur warmup, bukan
+algoritmenya. Rumusnya sederhana dan layak jadi aturan praktis:
+
+> **budget efektif = budget − warmup.** Membandingkan pencari berbasis model
+> pada budget yang tidak jauh lebih besar dari warmup-nya berarti
+> membandingkan random search dengan nama yang berbeda.
+
+Uji lanjutan (satu variabel: budget 12 → **40**, jadi budget efektif 30)
+sedang berjalan di T4: `scripts/b40_suite.py`.
+
 ## Fitur v0.3
 
 - **Ruang bersyarat** (`when:` di sweep.yaml) — parameter mati dibuang dari
