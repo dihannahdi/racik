@@ -66,17 +66,24 @@ peringkat menunjuk pemenang yang salah?** Caranya: subsampel k seed dari run
 ber-seed banyak (2000 ulangan), lalu hitung berapa kali juaranya berbeda dari
 juara pada seluruh seed.
 
-| k seed | P(juara berubah) — sintetis (n=40) | — data nyata (n=20) |
-|---|---|---|
-| 3 | 60.1% | **71.4%** |
-| 5 | 51.3% | 67.0% |
-| 10 | 37.4% | 54.4% |
-| 15 | 28.5% | 38.0% |
-| 20 | 20.0% | 0% (= acuan) |
-| 30 | 7.7% | — |
+| k seed | sintetis (n=40) | data nyata b12 (n=20) | data nyata b40 (n=20) |
+|---|---|---|---|
+| 3 | 60.1% | **71.4%** | 66.7% |
+| 5 | 51.3% | 67.0% | 63.1% |
+| 10 | 37.4% | 54.4% | 53.2% |
+| 15 | 28.5% | 38.0% | **49.0%** |
+| 30 | 7.7% | — | — |
 
 **Sebuah studi 3-seed menobatkan pemenang yang salah pada 6–7 dari 10
 kesempatan.** Itu bukan pengukuran, itu lempar koin dengan tabel.
+
+Perhatikan kolom terakhir: pada budget 40, LII tetap **49% di 15 seed** —
+lebih tinggi daripada protokol lain. Sebabnya justru karena dua kandidat
+teratas hampir seri (tpe2 vs optuna_tpe, Δ=0.0003). **LII memuncak tepat
+ketika perlombaan ketat** — yaitu kondisi yang paling sering diklaim sebagai
+kemenangan di makalah. Karena itu LII layak dilaporkan berdampingan dengan
+papan peringkat: ia mengukur seberapa banyak papan peringkat itu boleh
+dipercaya.
 
 Dan dari lengan plasebo (§1.1) kita bisa menghitung harga kepastian:
 
@@ -123,17 +130,67 @@ Pada 15 seed kami "menang"; pada 40 seed TPE Optuna **signifikan** lebih baik
 dari TPE kami (Δ=0.056, p=0.029). Seluruh papan peringkat 15-seed berada di
 bawah lantai noise — kami hampir menerbitkan klaim yang salah arah.
 
-### 2.3 Permukaan sintetis melebih-lebihkan perbedaan antar-algoritme
+### 2.3 Pada budget kecil tak ada yang mengalahkan random — pada budget cukup, TPE menang
 
-| Protokol | Hasil |
-|---|---|
-| Sintetis, budget 30, 40 seed | tpe2 & evolution menang, p ≤ 0.01 |
-| **Data nyata, budget 12, 20 seed** | **0 dari 15 perbandingan signifikan** |
+Dua protokol, **satu variabel** yang berbeda (budget 12 → 40), data dan seed
+sama, 20 seed di GPU T4:
 
-Di data nyata, papan peringkatnya membentang hanya 0.020 (dua kali lantai
-noise 0.0092), dan evolution vs random hanya p=0.186 — padahal daya uji
-memadai (p minimum terjangkau = 2e-6). Sebagian penyebabnya adalah budget
-efektif (§1.3); uji budget 40 sedang berjalan untuk memisahkan dua sebab itu.
+| | budget 12 (efektif ~2) | budget 40 (efektif ~30) |
+|---|---|---|
+| Perbandingan signifikan | **0 dari 15** | **2 dari 15** |
+| Lantai noise | 0.0092 | **0.0013** |
+| tpe2 vs random | −0.0038, p=0.736 | **+0.0238, p=0.028** ✔ |
+| optuna_tpe vs random | −0.0077, p=0.634 | **+0.0242, p=0.046** ✔ |
+| evolution vs random | +0.0145, p=0.183 | +0.0006, p=0.952 (di bawah lantai) |
+| tpe2 vs optuna_tpe | −0.0038, p=0.799 | **+0.0003, p=0.978** (seri persis) |
+
+Tiga hal yang bisa disimpulkan, semuanya baru:
+
+1. **Hasil nol di budget 12 memang artefak budget efektif**, bukan bukti
+   bahwa algoritme tak berguna. Begitu diberi 30 keputusan berbasis model
+   (bukan 2), keluarga TPE memisahkan diri dari random secara signifikan.
+   Pesan praktisnya presisi: *algoritme tidak penting pada budget kecil* —
+   dan budget kecil adalah kondisi paling umum di lapangan.
+2. **Kemenangan evolution di budget 12 (0.4328, "juara") ternyata noise.**
+   Di budget 40 ia tepat setara random (Δ=0.0006, di bawah lantai noise).
+   Papan peringkat budget-12 menobatkan pemenang yang salah — persis yang
+   diramalkan LII.
+3. **TPE v2 kami setara persis TPE Optuna di data nyata**: Δ=0.0003, p=0.978.
+   Di objektif sintetis selisihnya 0.021 (juga tidak signifikan); di data
+   nyata praktis nol. Klaim *setara rujukan industri* kini punya dua bukti
+   independen.
+
+Besar efeknya tetap sederhana: **+0.024 akurasi** dari mengganti random
+dengan TPE pada budget 40. Itu nyata, tetapi jauh lebih kecil daripada yang
+biasa disiratkan makalah — dan butuh ~75 seed untuk diklaim andal bila
+lengan-lengannya tidak berbagi keacakan (lihat catatan berikut).
+
+### 2.4 Catatan halus: lengan plasebo bisa terlalu konservatif
+
+Audit budget-40 memperkirakan MDE=0.0414 pada 20 seed, tetapi kami *berhasil*
+mendeteksi Δ=0.0238 dengan p=0.028. Bukan kontradiksi — penyebabnya penting:
+
+Pencari racik **berbagi RNG warmup**, jadi `random` dan `tpe2` menyampel
+konfigurasi awal yang identik pada seed yang sama. Selisih berpasangannya
+karena itu berkorelasi tinggi dan variansnya kecil. Sementara lengan plasebo
+kami (`random` vs `optuna_random`) memakai dua aliran RNG yang **independen**,
+sehingga variansnya lebih besar.
+
+Konsekuensinya, ada dua jenis lengan plasebo:
+
+| Jenis | Sifat | Kapan dipakai |
+|---|---|---|
+| RNG independen | batas **atas** varians null → MDE konservatif | bila arm-mu tidak berbagi keacakan |
+| RNG bersama (seed dipasangkan) | varians null lebih ketat, daya uji lebih tinggi | bila arm-mu berbagi warmup/data order |
+
+MDE dari lengan plasebo independen aman dipakai sebagai batas konservatif —
+klaim di atasnya pasti terdukung. Tetapi klaim di bawahnya belum otomatis
+gugur bila arm-nya berbagi keacakan; ukur variansnya langsung.
+
+**Pelajaran praktis untuk industri:** *pasangkan* keacakan antar arm bila
+bisa (seed sama, urutan data sama, warmup sama). Itu menaikkan daya uji
+tanpa satu pun training tambahan — cara termurah memperbaiki keandalan
+keputusan sweep.
 
 ---
 
