@@ -165,6 +165,18 @@ dengan TPE pada budget 40. Itu nyata, tetapi jauh lebih kecil daripada yang
 biasa disiratkan makalah — dan butuh ~75 seed untuk diklaim andal bila
 lengan-lengannya tidak berbagi keacakan (lihat catatan berikut).
 
+**Replikasi di dataset kedua (CIFAR-10, fidelity terkalibrasi 5 epoch/5000,
+budget 12, 20 seed).** Polanya sama seperti Intel Image di budget 12: dari 15
+perbandingan, hanya **1** yang signifikan (`optuna_tpe` vs `optuna_random`,
+Δ=0.027, p=0.001), sedangkan `optuna_tpe` vs `random` sendiri belum signifikan
+(Δ=0.022, p=0.126). Papan peringkatnya membentang 0.028 saja. Jadi temuan
+"budget kecil = pilihan algoritme hampir tak berpengaruh" **bertahan di dua
+dataset**, bukan khas satu tugas.
+
+Catatan penting: nilai ini diperoleh setelah fidelity CIFAR dikalibrasi
+(akurasi ~0.50, jauh di atas lantai tebakan 0.10). Tanpa kalibrasi itu,
+angkanya akan tampak mendukung kesimpulan yang sama karena alasan yang salah.
+
 ### 2.4 Catatan halus: lengan plasebo bisa terlalu konservatif
 
 Audit budget-40 memperkirakan MDE=0.0414 pada 20 seed, tetapi kami *berhasil*
