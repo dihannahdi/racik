@@ -237,6 +237,42 @@ Pelajarannya berlaku umum untuk siapa pun yang membandingkan lintas dataset:
 beberapa setelan (epoch, ukuran subset) dan melaporkan akurasi acuan tiap
 setelan, sehingga protokol dataset kedua dipilih dari pengukuran, bukan tebakan.
 
+## Karya terdahulu — apa yang BUKAN baru dari kami
+
+Diperiksa setelah instrumen di Bagian 1 dibangun. Hasilnya menuntut kami
+mengecilkan klaim kebaruan, dan itu dicatat di sini alih-alih disembunyikan.
+
+| Instrumen kami | Karya terdahulu |
+|---|---|
+| Lantai daya uji, MDE, jumlah seed | **Colas dkk. (2018)**, *How Many Random Seeds? Statistical Power Analysis in Deep RL* — analisis daya uji untuk seed sudah dibahas tuntas di sana. Batas p minimum uji berpasangan pada n kecil juga sudah dilaporkan orang lain (mis. Wilcoxon pada 5 seed). |
+| Varians benchmark & rekomendasi protokol | **Bouthillier dkk. (MLSys 2021)**, *Accounting for Variance in ML Benchmarks* — memodelkan sumber varians (sampling data, inisialisasi, hyperparameter) dan memberi rekomendasi perbandingan. |
+| Ketidakstabilan peringkat via resampling | Sudah ada beberapa: bootstrap peringkat pada MS MARCO; audit benchmark deteksi depresi yang melaporkan peluang bootstrap konfigurasi terbaik benar-benar rank-1 hanya **0.323**; *Quantifying Ranking Uncertainty in LLM Benchmarks* (2026); *Unstable Rankings in Bayesian Deep Learning Evaluation* (2026). |
+| Kerangka membandingkan banyak optimizer | **CARP-S** (2025) — kerangka membandingkan N optimizer HPO pada M benchmark. |
+
+**Jadi tiga instrumen kami bukan penemuan baru.** Yang tersisa sebagai
+kontribusi, dan lebih sempit dari kesan awal:
+
+1. **Lengan plasebo sebagai arm kontrol eksplisit** — menjalankan dua
+   *implementasi berbeda dari algoritme yang sama* dan memakai selisihnya
+   sebagai lantai noise sekaligus taksiran varians null. Karya terdahulu
+   memodelkan varians dari sumbernya; kami mengukurnya langsung dari satu
+   arm kontrol, seperti kelompok plasebo. Belum kami temukan padanannya,
+   tetapi belum bisa kami pastikan tidak ada.
+2. **Diagnosis budget efektif** (= budget − warmup), lengkap dengan
+   pengukuran fraksi seed yang kurvanya masih identik dengan random.
+   Praktis, dan menjelaskan hasil nol yang tanpa itu akan disalahartikan.
+3. **Pengemasan**: audit yang menerima CSV `arm,seed,score` dari perkakas
+   apa pun tanpa mengubah pipeline. Ini rekayasa, bukan sains — tetapi
+   justru itu yang menentukan apakah metodenya dipakai orang.
+4. **Hasil empiris spesifik** pada NAS/HPO vision nyata: TPE mengalahkan
+   random hanya di atas budget efektif ~30; evolution tidak pernah; dan
+   ketiga pembalikan di Bagian 2.
+
+Konsekuensi untuk penulisan: makalah yang mengabaikan Bouthillier dkk. dan
+Colas dkk. akan ditolak sebelum ditinjau. Posisi kami yang jujur adalah
+**melanjutkan** garis itu ke ranah NAS/HPO vision dengan arm kontrol dan
+alat yang bisa langsung dipakai, bukan mengklaim membuka jalan baru.
+
 ## Batasan (jujur)
 
 1. **Satu dataset** (Intel Image Classification, 6 kelas). Klaim lintas-tugas
