@@ -157,6 +157,29 @@ dilatih penuh.
 
 ---
 
+## Perangkap yang kami temukan pada diri sendiri: efek lantai lintas-dataset
+
+Saat menyiapkan dataset kedua (CIFAR-10) untuk uji lintas-tugas, protokolnya
+kami samakan persis dengan yang pertama — termasuk **1 epoch dan 1500 sampel
+train**. Smoke-test-nya menghasilkan akurasi **0.1233**, nyaris lantai tebakan
+acak untuk 10 kelas (0.10).
+
+Di rezim itu benchmark akan melaporkan "tak ada pencari yang berbeda" — tetapi
+karena **tidak ada sinyal untuk dibedakan**, bukan karena algoritmenya setara.
+Kesimpulan yang benar dengan alasan yang salah tetap kesimpulan yang cacat,
+dan sulit dibedakan dari temuan asli §2.3.
+
+Pelajarannya berlaku umum untuk siapa pun yang membandingkan lintas dataset:
+
+> Menyamakan **jumlah epoch** antar dataset yang kesulitannya berbeda bukan
+> perbandingan yang adil. Yang harus disamakan adalah **rezim akurasinya** —
+> kalibrasi fidelity tiap dataset sampai akurasi acuannya berada di band yang
+> sebanding, lalu bandingkan di sana.
+
+`scripts/calibrate_fidelity.py` melakukan kalibrasi itu dari bukti: ia mencoba
+beberapa setelan (epoch, ukuran subset) dan melaporkan akurasi acuan tiap
+setelan, sehingga protokol dataset kedua dipilih dari pengukuran, bukan tebakan.
+
 ## Batasan (jujur)
 
 1. **Satu dataset** (Intel Image Classification, 6 kelas). Klaim lintas-tugas
