@@ -1,0 +1,30 @@
+# racik — dataset kedua (CIFAR-10) untuk uji lintas-tugas.
+# Sengaja disamakan protokolnya dengan sweep_kaggle.yaml (ukuran subset,
+# image_size, epoch, ruang pencarian) supaya satu-satunya variabel yang
+# berbeda adalah datasetnya. Ini menyerang batasan nomor 1 di FINDINGS.md:
+# apakah temuan "tak ada pencari mengalahkan random" khas satu tugas saja?
+
+backend: vision
+task: >
+  Klasifikasi CIFAR-10: replikasi protokol benchmark pencari pada dataset
+  kedua, untuk menguji apakah temuan lintas-tugas.
+
+dataset:
+  name: cifar10
+  dir: ./data
+  image_size: 32
+  limit_train: 1500
+  limit_val: 600
+
+epochs: 1
+seed: 42
+
+space:
+  arch:      {type: choice, options: [tiny, resnet18, mobilenet_v3_small]}
+  lr:        {type: loguniform, low: 0.0001, high: 0.01}
+  optimizer: {type: choice, options: [adam, sgd]}
+  augment:   {type: choice, options: [none, basic]}
+  depth:     {type: int, low: 2, high: 4, when: {arch: tiny}}
+  width:     {type: choice, options: [16, 32, 48], when: {arch: tiny}}
+  block:     {type: choice, options: [basic, residual, depthwise], when: {arch: tiny}}
+  use_se:    {type: choice, options: [true, false], when: {arch: tiny}}
