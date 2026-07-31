@@ -2,6 +2,11 @@
 
 Kerangka riset kecil untuk **algoritme pencarian arsitektur & hyperparameter model vision** — dibangun dari nol, bukan pembungkus library lain. Nama dari kata *meracik*: mencampur bahan sampai ketemu takaran yang pas.
 
+> **[INDUSTRY.md](INDUSTRY.md) — audit sweep-mu dalam 2 menit.** Untuk tim yang
+> harus memutuskan "apakah pemenang sweep ini nyata atau kebetulan". Menerima
+> CSV `arm,seed,score` dari Optuna/W&B/Ray/MLflow. Angka pembukanya: sweep
+> 3-seed menobatkan pemenang yang **salah 71%** dari waktu.
+>
 > **[FINDINGS.md](FINDINGS.md) — ringkasan temuan beserta batasannya.** Tiga
 > instrumen kalibrasi (lantai noise, lantai daya uji, budget efektif) dan tiga
 > kasus di mana kesimpulan berbalik ketika instrumen itu dipakai — dua di

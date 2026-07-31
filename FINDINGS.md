@@ -58,6 +58,40 @@ Pada budget 12, tpe2 hanya membuat **2** keputusan berbasis model.
 
 ---
 
+### 1.4 Indeks ketidakstabilan papan peringkat (LII)
+
+Instrumen §1.1–1.3 memberi tahu kapan **satu** perbandingan tidak sah. LII
+menjawab pertanyaan yang lebih langsung: **seberapa sering seluruh papan
+peringkat menunjuk pemenang yang salah?** Caranya: subsampel k seed dari run
+ber-seed banyak (2000 ulangan), lalu hitung berapa kali juaranya berbeda dari
+juara pada seluruh seed.
+
+| k seed | P(juara berubah) — sintetis (n=40) | — data nyata (n=20) |
+|---|---|---|
+| 3 | 60.1% | **71.4%** |
+| 5 | 51.3% | 67.0% |
+| 10 | 37.4% | 54.4% |
+| 15 | 28.5% | 38.0% |
+| 20 | 20.0% | 0% (= acuan) |
+| 30 | 7.7% | — |
+
+**Sebuah studi 3-seed menobatkan pemenang yang salah pada 6–7 dari 10
+kesempatan.** Itu bukan pengukuran, itu lempar koin dengan tabel.
+
+Dan dari lengan plasebo (§1.1) kita bisa menghitung harga kepastian:
+
+| Perbaikan yang ingin diklaim | Seed minimum (data nyata) |
+|---|---|
+| 0.05 | 16 |
+| 0.02 | **105** |
+| 0.01 | **>200** |
+
+Implementasi: [`racik/validity.py`](racik/validity.py);
+laporan: `AUDIT_dummy40.md`, `AUDIT_real20.md`;
+panduan pakai untuk tim: [INDUSTRY.md](INDUSTRY.md).
+
+---
+
 ## Bagian 2 — Tiga kesimpulan yang berbalik
 
 ### 2.1 Korelasi zero-cost proxy berbalik tanda dua kali
