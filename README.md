@@ -2,6 +2,11 @@
 
 Kerangka riset kecil untuk **algoritme pencarian arsitektur & hyperparameter model vision** — dibangun dari nol, bukan pembungkus library lain. Nama dari kata *meracik*: mencampur bahan sampai ketemu takaran yang pas.
 
+> **[FINDINGS.md](FINDINGS.md) — ringkasan temuan beserta batasannya.** Tiga
+> instrumen kalibrasi (lantai noise, lantai daya uji, budget efektif) dan tiga
+> kasus di mana kesimpulan berbalik ketika instrumen itu dipakai — dua di
+> antaranya membatalkan klaim kami sendiri.
+
 ## Pertanyaan riset
 
 Menyetel model vision itu kerja *mix and match*: coba kombinasi (arsitektur, learning rate, optimizer, augmentasi), lihat hasil, ubah, coba lagi. Di literatur ini disebut **hyperparameter optimization** dan **neural architecture search (NAS)**. Pertanyaan yang bisa dijawab kerangka ini:
